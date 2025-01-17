@@ -1,8 +1,8 @@
 /*** ColorTransform v1 ***/
 /* name & hex & rgb & hsl */
-// hex normalize 
-// rgb normalize 
-// hsl normalize 
+// hex normalize ***
+// rgb normalize ***
+// hsl normalize ***
 // get hex object 
 // get rgb object 
 // get hsl object 
@@ -2361,4 +2361,42 @@ class ColorTransform {
          "zumthor": "#edf6ff"
       }
    }
+   hexNormalize(str) {
+      const regex = /^#([a-fA-F\d]{3}|[a-fA-F\d]{4}|[a-fA-F\d]{6}|[a-fA-F\d]{8})$/;
+      if (!regex.test(str)) return undefined;
+      let hex = str.slice(1).toLowerCase();
+      if (hex.length === 3) {
+         hex = hex.replace(/./g, x => x + x) + 'ff'; // تبدیل #rgb → #rrggbbff
+      } else if (hex.length === 4) {
+         hex = hex.replace(/./g, x => x + x); // تبدیل #rgba → #rrggbbaa
+      } else if (hex.length === 6) {
+         hex += 'ff';
+      }
+      return `#${hex.toUpperCase()}`;
+   }
+   rgbNormalize(str) {
+      let regex = /^rgba?\(\s*(\d+(\.\d+)?)\s*,?\s*(\d+(\.\d+)?)\s*,?\s*(\d+(\.\d+)?)\s*(?:\/\s*|,\s*)?(0|1|0?\.\d+)?\s*\)$/i;
+      let match = str.match(regex);
+      if (!match) return undefined;
+      let r = parseInt(match[1]);
+      let g = parseInt(match[3]);
+      let b = parseInt(match[5]);
+      let a = match[7] !== undefined ? parseFloat(match[7]) : 1;
+      if (r > 255 || g > 255 || b > 255 || a < 0 || a > 1) return undefined;
+      return `rgba(${r} ${g} ${b} / ${a})`;
+   }
+   hslNormalize(str) {
+      let regex = /^hsla?\(\s*(\d+(\.\d+)?)\s*(deg)?\s*,?\s*(\d+(\.\d+)?)%?\s*,?\s*(\d+(\.\d+)?)%?\s*(?:\/\s*|,\s*)?(0|1|0?\.\d+)?\s*\)$/i;
+      let match = str.match(regex);
+      if (!match) return undefined;
+      let h = Math.round(parseFloat(match[1]));
+      let s = Math.round(parseFloat(match[4]));
+      let l = Math.round(parseFloat(match[6]));
+      let a = match[8] !== undefined ? parseFloat(match[8]) : 1;
+      if (h < 0 || h > 360 || s < 0 || s > 100 || l < 0 || l > 100 || a < 0 || a > 1) return undefined;
+      return `hsl(${h} ${s}% ${l}% / ${a})`;
+   }
 }
+
+let c = new ColorTransform();
+console.log(c.hslNormalize('hsl(255.4, 34.8, 70.9, 0.903)'))
