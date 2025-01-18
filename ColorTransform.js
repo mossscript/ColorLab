@@ -1,8 +1,8 @@
-/*** ColorTransform v1.03 ***/
+/*** ColorTransform v1.1 ***/
 class ColorTransform {
    #colors;
    constructor() {
-      this.version = "1.03";
+      this.version = "1.1";
       this.#colors = {
          "abbey": "#4c4f56",
          "absolutezero": "#0048ba",
