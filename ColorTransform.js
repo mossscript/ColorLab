@@ -2,7 +2,7 @@
 class ColorTransform {
    #colors;
    constructor() {
-      this.version = "1.02";
+      this.version = "1.03";
       this.#colors = {
          "abbey": "#4c4f56",
          "absolutezero": "#0048ba",
