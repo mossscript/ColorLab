@@ -1,8 +1,8 @@
-/*** ColorTransform v1 ***/
+/*** ColorTransform v1.02 ***/
 class ColorTransform {
    #colors;
    constructor() {
-      this.version = "1";
+      this.version = "1.02";
       this.#colors = {
          "abbey": "#4c4f56",
          "absolutezero": "#0048ba",
@@ -2374,10 +2374,10 @@ class ColorTransform {
       let normalizedHex = this.hexNormalize(str);
       if (!normalizedHex) return undefined;
       let match = normalizedHex.match(/^#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})$/i);
-      let r = parseInt(match[1], 16);
-      let g = parseInt(match[2], 16);
-      let b = parseInt(match[3], 16);
-      let a = parseInt(match[4], 16) / 255;
+      let r = match[1];
+      let g = match[2];
+      let b = match[3];
+      let a = match[4];
       return { r, g, b, a };
    }
    getRgbObj(str) {
@@ -2402,7 +2402,11 @@ class ColorTransform {
    }
    hexToHsl(hex) {
       let { r, g, b, a } = this.getHexObj(hex);
-      if (!r) return undefined;
+      r = parseInt(r, 16);
+      g = parseInt(g, 16);
+      b = parseInt(b, 16);
+      a = parseInt(a, 16) / 255;
+      if (r == undefined) return undefined;
       r /= 255;
       g /= 255;
       b /= 255;
@@ -2434,12 +2438,17 @@ class ColorTransform {
    }
    hexToRgb(hex) {
       let { r, g, b, a } = this.getHexObj(hex);
-      if (!r) return undefined;
+      r = parseInt(r, 16);
+      g = parseInt(g, 16);
+      b = parseInt(b, 16);
+      a = parseInt(a, 16) / 255;
+      console.log(r)
+      if (r == undefined) return undefined;
       return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
    }
    rgbToHex(rgb) {
       let { r, g, b, a } = this.getRgbObj(rgb);
-      if (!r) return undefined;
+      if (r == undefined) return undefined;
       let toHex = (value) => {
          let hex = value.toString(16);
          return hex.length == 1 ? '0' + hex : hex;
@@ -2448,7 +2457,7 @@ class ColorTransform {
    }
    rgbToHsl(rgb) {
       let { r, g, b, a } = this.getRgbObj(rgb);
-      if (!r) return undefined;
+      if (r == undefined) return undefined;
       r /= 255;
       g /= 255;
       b /= 255;
@@ -2480,7 +2489,7 @@ class ColorTransform {
    }
    hslToRgb(hsl) {
       let { h, s, l, a } = this.getHslObj(hsl);
-      if (!h) return undefined;
+      if (h == undefined) return undefined;
       h = h / 360;
       s = s / 100;
       l = l / 100;
@@ -2527,7 +2536,7 @@ class ColorTransform {
    }
    hslToHex(hsl) {
       let { h, s, l, a } = this.getHslObj(hsl);
-      if (!h) return undefined;
+      if (h == undefined) return undefined;
       h = h / 360;
       s = s / 100;
       l = l / 100;
@@ -2583,10 +2592,15 @@ class ColorTransform {
       let hex = this.#colors[str.toLowerCase().replace(/\s+/g, '')];
       if (!hex) return undefined;
       let { r, g, b, a } = this.getHexObj(hex);
+      r = parseInt(r, 16);
+      g = parseInt(g, 16);
+      b = parseInt(b, 16);
+      a = parseInt(a, 16) / 255;
       return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
    }
    nameToHsl(str) {
       let hex = this.#colors[str.toLowerCase().replace(/\s+/g, '')];
+      console.log(hex)
       if (!hex) return undefined;
       let hsl = this.hexToHsl(hex);
       let { h, s, l, a } = this.getHslObj(hsl);
@@ -2598,7 +2612,8 @@ class ColorTransform {
             return this.nameToHex(str);
             break;
          case !!this.hexNormalize(str):
-            return this.hexNormalize(str);
+            let { r, g, b, a } = this.getHexObj(str);
+            return a != 'ff' ? `#${r}${g}${b}${a}` : `#${r}${g}${b}`;
             break;
          case !!this.rgbNormalize(str):
             return this.rgbToHex(str);
@@ -2619,7 +2634,8 @@ class ColorTransform {
             return this.hexToRgb(str);
             break;
          case !!this.rgbNormalize(str):
-            return this.rgbNormalize(str);
+            let { r, g, b, a } = this.getRgbObj(str);
+            return a < 1 ? `rgba(${r} ${g}${b} / ${a})` : `rgb(${r} ${g} ${b})`;
             break;
          case !!this.hslNormalize(str):
             return this.hslToRgb(str);
@@ -2640,7 +2656,8 @@ class ColorTransform {
             return this.rgbToHsl(str);
             break;
          case !!this.hslNormalize(str):
-            return this.hslNormalize(str);
+            let { h, s, l, a } = this.getHslObj(str);
+            return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
             break;
          default:
             return undefined;
@@ -2656,7 +2673,7 @@ class ColorTransform {
       if (!rgb) return undefined;
       return this.getRgbObj(rgb)
    }
-   toRgbObj(str) {
+   toHslObj(str) {
       let hsl = this.toHsl(str);
       if (!hsl) return undefined;
       return this.getHslObj(hsl)

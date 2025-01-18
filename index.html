@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>Color Transform</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <link rel="stylesheet" href="style.css" />
+   <script src="ColorTransform.js"></script>
+   <style>
+      * {
+         box-sizing: border-box;
+         -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+         margin: 0;
+         padding: 0;
+         width: 100vw;
+      }
+
+      main {
+         padding: 16px;
+      }
+
+      section {
+         background: hsl(0 0% 97%);
+         color: hsl(0 0% 20%);
+         border-radius: 32px;
+         text-align: center;
+      }
+
+      h1 {
+         padding: 16px;
+         border-bottom: 2px solid hsl(0 0% 80%);
+      }
+
+      sup {
+         opacity: 0.5;
+      }
+
+      form {
+         padding: 16px;
+         display: flex;
+         flex-flow: nowrap column;
+         justify-content: flex-start;
+         align-items: stretch;
+         gap: 16px;
+      }
+
+      form>span {
+         display: block;
+         border-radius: 16px;
+         box-shadow: 0 0 8px hsl(0 0% 80%);
+         flex-grow: 2;
+         height: 40px;
+         width: 100%;
+      }
+
+      form>div {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         gap: 16px;
+      }
+
+      input,
+      output {
+         background: none;
+         border: 2px solid hsl(0 0% 90%);
+         outline: none;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         border-radius: 16px;
+         height: 40px;
+         text-align: center;
+         padding: 0 8px;
+         font-size: 14px;
+      }
+
+      output {
+         flex-grow: 1;
+         background: hsl(0 0% 90%);
+         border: none;
+      }
+   </style>
+</head>
+
+<body>
+   <main>
+      <section>
+         <h1>Color Transform<sup></sup></h1>
+         <form method="dialog" oninput="Transform(this)">
+            <span></span>
+            <input placeholder="Color" type="text">
+            <div>
+               <span>HEX :</span>
+               <output></output>
+            </div>
+            <div>
+               <span>RGB :</span>
+               <output></output>
+            </div>
+            <div>
+               <span>HSL :</span>
+               <output></output>
+            </div>
+            <div>
+               <span>HEX Obj :</span>
+               <output></output>
+            </div>
+            <div>
+               <span>RGB Obj :</span>
+               <output></output>
+            </div>
+            <div>
+               <span>HSL Obj:</span>
+               <output></output>
+            </div>
+         </form>
+      </section>
+   </main>
+   <script>
+      let C = new ColorTransform();
+      document.querySelector('sup').innerHTML = 'v' + C.version
+      function Transform(form) {
+         let input = form.querySelector('input');
+         let span = form.querySelector('span');
+         let output = form.querySelectorAll('output');
+         span.style.background = C.toHex(input.value);
+         output[0].innerHTML = C.toHex(input.value);
+         output[1].innerHTML = C.toRgb(input.value);
+         output[2].innerHTML = C.toHsl(input.value);
+         output[3].innerHTML = JSON.stringify(C.toHexObj(input.value));
+         output[4].innerHTML = JSON.stringify(C.toRgbObj(input.value));
+         output[5].innerHTML = JSON.stringify(C.toHslObj(input.value));
+      }
+   </script>
+</body>
+
+</html>
