@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
    <title>Color Transform</title>
    <meta charset="UTF-8">
@@ -17,29 +18,40 @@
          margin: 0;
          padding: 0;
          width: 100vw;
+         display: flex;
+         flex-flow: nowrap column;
+         justify-content: flex-start;
+         align-items: center;
       }
 
       main {
          padding: 16px;
+         width: 100%;
+         max-width: 500px;
       }
 
       section {
-         background: hsl(0 0% 97%);
+         background: hsl(0 0% 95%);
          color: hsl(0 0% 20%);
          border-radius: 32px;
          text-align: center;
       }
 
       h1 {
-         padding: 16px;
-         border-bottom: 2px solid hsl(0 0% 80%);
+         color: #000;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         margin: 0;
+         padding: 24px;
       }
 
       sup {
          opacity: 0.5;
       }
 
-      form {
+      form>div {
+         border-top: 2px solid hsl(0 0% 80%);
          padding: 16px;
          display: flex;
          flex-flow: nowrap column;
@@ -48,7 +60,7 @@
          gap: 16px;
       }
 
-      form>span {
+      form>div>span {
          display: block;
          border-radius: 16px;
          box-shadow: 0 0 8px hsl(0 0% 80%);
@@ -57,7 +69,7 @@
          width: 100%;
       }
 
-      form>div {
+      form>div>div {
          display: flex;
          justify-content: space-between;
          align-items: center;
@@ -67,7 +79,7 @@
       input,
       output {
          background: none;
-         border: 2px solid hsl(0 0% 90%);
+         border: 2px solid hsl(0 0% 80%);
          outline: none;
          display: flex;
          justify-content: center;
@@ -86,36 +98,29 @@
       }
    </style>
 </head>
+
 <body>
    <main>
       <section>
          <h1>Color Transform<sup></sup></h1>
          <form method="dialog" oninput="Transform(this)">
-            <span></span>
-            <input placeholder="Color" type="text">
             <div>
-               <span>HEX :</span>
-               <output></output>
+               <span></span>
+               <input placeholder="Color" type="text">
             </div>
             <div>
-               <span>RGB :</span>
-               <output></output>
-            </div>
-            <div>
-               <span>HSL :</span>
-               <output></output>
-            </div>
-            <div>
-               <span>HEX Obj :</span>
-               <output></output>
-            </div>
-            <div>
-               <span>RGB Obj :</span>
-               <output></output>
-            </div>
-            <div>
-               <span>HSL Obj:</span>
-               <output></output>
+               <div>
+                  <span>HEX :</span>
+                  <output></output>
+               </div>
+               <div>
+                  <span>RGB :</span>
+                  <output></output>
+               </div>
+               <div>
+                  <span>HSL :</span>
+                  <output></output>
+               </div>
             </div>
          </form>
       </section>
@@ -123,6 +128,7 @@
    <script>
       let C = new ColorTransform();
       document.querySelector('sup').innerHTML = 'v' + C.version
+
       function Transform(form) {
          let input = form.querySelector('input');
          let span = form.querySelector('span');
@@ -137,4 +143,5 @@
       }
    </script>
 </body>
+
 </html>
