@@ -1,30 +1,4 @@
 /*** ColorTransform v1 ***/
-/* name & hex & rgb & hsl */
-// hex normalize ***
-// rgb normalize ***
-// hsl normalize ***
-// get hex object 
-// get rgb object 
-// get hsl object 
-// name to hex
-// name to rgb
-// name to hsl
-// hex to hsl
-// hex to rgb
-// rgb to hex
-// rgb to hsl
-// hsl to hex
-// hsl to rgb
-// object to hex
-// object to rgb
-// object to hsl
-// to hex object
-// to rgb object
-// to hsl object
-// to hex 
-// to rgb
-// to hsl
-
 class ColorTransform {
    #colors;
    constructor() {
@@ -2366,13 +2340,13 @@ class ColorTransform {
       if (!regex.test(str)) return undefined;
       let hex = str.slice(1).toLowerCase();
       if (hex.length === 3) {
-         hex = hex.replace(/./g, x => x + x) + 'ff'; // تبدیل #rgb → #rrggbbff
+         hex = hex.replace(/./g, x => x + x) + 'ff';
       } else if (hex.length === 4) {
-         hex = hex.replace(/./g, x => x + x); // تبدیل #rgba → #rrggbbaa
+         hex = hex.replace(/./g, x => x + x);
       } else if (hex.length === 6) {
          hex += 'ff';
       }
-      return `#${hex.toUpperCase()}`;
+      return `#${hex.toLowerCase()}`;
    }
    rgbNormalize(str) {
       let regex = /^rgba?\(\s*(\d+(\.\d+)?)\s*,?\s*(\d+(\.\d+)?)\s*,?\s*(\d+(\.\d+)?)\s*(?:\/\s*|,\s*)?(0|1|0?\.\d+)?\s*\)$/i;
@@ -2394,9 +2368,297 @@ class ColorTransform {
       let l = Math.round(parseFloat(match[6]));
       let a = match[8] !== undefined ? parseFloat(match[8]) : 1;
       if (h < 0 || h > 360 || s < 0 || s > 100 || l < 0 || l > 100 || a < 0 || a > 1) return undefined;
-      return `hsl(${h} ${s}% ${l}% / ${a})`;
+      return `hsla(${h} ${s}% ${l}% / ${a})`;
+   }
+   getHexObj(str) {
+      let normalizedHex = this.hexNormalize(str);
+      if (!normalizedHex) return undefined;
+      let match = normalizedHex.match(/^#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})$/i);
+      let r = parseInt(match[1], 16);
+      let g = parseInt(match[2], 16);
+      let b = parseInt(match[3], 16);
+      let a = parseInt(match[4], 16) / 255;
+      return { r, g, b, a };
+   }
+   getRgbObj(str) {
+      let normalizedRgb = this.rgbNormalize(str);
+      if (!normalizedRgb) return undefined;
+      let match = normalizedRgb.match(/^rgba\(\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s*\/\s*(0|1|0?\.\d+)\s*\)$/i);
+      let r = parseInt(match[1]);
+      let g = parseInt(match[2]);
+      let b = parseInt(match[3]);
+      let a = parseFloat(match[4]);
+      return { r, g, b, a };
+   }
+   getHslObj(str) {
+      let normalizedHsl = this.hslNormalize(str);
+      if (!normalizedHsl) return undefined;
+      let match = normalizedHsl.match(/^hsla\(\s*(\d{1,3})\s*(\d{1,3})%\s*\s*(\d{1,3})%\s*\/\s*(0|1|0?\.\d+)\s*\)$/i);
+      let h = parseInt(match[1]);
+      let s = parseInt(match[2]);
+      let l = parseInt(match[3]);
+      let a = parseFloat(match[4]);
+      return { h, s, l, a };
+   }
+   hexToHsl(hex) {
+      let { r, g, b, a } = this.getHexObj(hex);
+      if (!r) return undefined;
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      let max = Math.max(r, g, b);
+      let min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max == min) {
+         h = s = 0;
+      } else {
+         let d = max - min;
+         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+         switch (max) {
+            case r:
+               h = (g - b) / d + (g < b ? 6 : 0);
+               break;
+            case g:
+               h = (b - r) / d + 2;
+               break;
+            case b:
+               h = (r - g) / d + 4;
+               break;
+         }
+         h /= 6;
+      }
+      h = (h * 360).toFixed(0);
+      s = (s * 100).toFixed(0);
+      l = (l * 100).toFixed(0);
+      return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
+   }
+   hexToRgb(hex) {
+      let { r, g, b, a } = this.getHexObj(hex);
+      if (!r) return undefined;
+      return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
+   }
+   rgbToHex(rgb) {
+      let { r, g, b, a } = this.getRgbObj(rgb);
+      if (!r) return undefined;
+      let toHex = (value) => {
+         let hex = value.toString(16);
+         return hex.length == 1 ? '0' + hex : hex;
+      };
+      return a < 1 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+   }
+   rgbToHsl(rgb) {
+      let { r, g, b, a } = this.getRgbObj(rgb);
+      if (!r) return undefined;
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      let max = Math.max(r, g, b);
+      let min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max == min) {
+         h = s = 0;
+      } else {
+         let d = max - min;
+         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+         switch (max) {
+            case r:
+               h = (g - b) / d + (g < b ? 6 : 0);
+               break;
+            case g:
+               h = (b - r) / d + 2;
+               break;
+            case b:
+               h = (r - g) / d + 4;
+               break;
+         }
+         h /= 6;
+      }
+      h = (h * 360).toFixed(1);
+      s = (s * 100).toFixed(1);
+      l = (l * 100).toFixed(1);
+      return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
+   }
+   hslToRgb(hsl) {
+      let { h, s, l, a } = this.getHslObj(hsl);
+      if (!h) return undefined;
+      h = h / 360;
+      s = s / 100;
+      l = l / 100;
+      let c = (1 - Math.abs(2 * l - 1)) * s;
+      let x = c * (1 - Math.abs((h * 6) % 2 - 1));
+      let m = l - c / 2;
+      let r, g, b;
+      switch (true) {
+         case (h >= 0 && h < 1 / 6):
+            r = c;
+            g = x;
+            b = 0;
+            break;
+         case (h >= 1 / 6 && h < 2 / 6):
+            r = x;
+            g = c;
+            b = 0;
+            break;
+         case (h >= 2 / 6 && h < 3 / 6):
+            r = 0;
+            g = c;
+            b = x;
+            break;
+         case (h >= 3 / 6 && h < 4 / 6):
+            r = 0;
+            g = x;
+            b = c;
+            break;
+         case (h >= 4 / 6 && h < 5 / 6):
+            r = x;
+            g = 0;
+            b = c;
+            break;
+         default:
+            r = c;
+            g = 0;
+            b = x;
+            break;
+      }
+      r = Math.round((r + m) * 255);
+      g = Math.round((g + m) * 255);
+      b = Math.round((b + m) * 255);
+      return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
+   }
+   hslToHex(hsl) {
+      let { h, s, l, a } = this.getHslObj(hsl);
+      if (!h) return undefined;
+      h = h / 360;
+      s = s / 100;
+      l = l / 100;
+      let c = (1 - Math.abs(2 * l - 1)) * s;
+      let x = c * (1 - Math.abs((h * 6) % 2 - 1));
+      let m = l - c / 2;
+      let r, g, b;
+      switch (true) {
+         case (h >= 0 && h < 1 / 6):
+            r = c;
+            g = x;
+            b = 0;
+            break;
+         case (h >= 1 / 6 && h < 2 / 6):
+            r = x;
+            g = c;
+            b = 0;
+            break;
+         case (h >= 2 / 6 && h < 3 / 6):
+            r = 0;
+            g = c;
+            b = x;
+            break;
+         case (h >= 3 / 6 && h < 4 / 6):
+            r = 0;
+            g = x;
+            b = c;
+            break;
+         case (h >= 4 / 6 && h < 5 / 6):
+            r = x;
+            g = 0;
+            b = c;
+            break;
+         default:
+            r = c;
+            g = 0;
+            b = x;
+            break;
+      }
+      r = Math.round((r + m) * 255);
+      g = Math.round((g + m) * 255);
+      b = Math.round((b + m) * 255);
+      let toHex = (value) => {
+         let hex = value.toString(16);
+         return hex.length == 1 ? '0' + hex : hex;
+      };
+      return a < 1 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+   }
+   nameToHex(str) {
+      return this.#colors[str.toLowerCase().replace(/\s+/g, '')];
+   }
+   nameToRgb(str) {
+      let hex = this.#colors[str.toLowerCase().replace(/\s+/g, '')];
+      if (!hex) return undefined;
+      let { r, g, b, a } = this.getHexObj(hex);
+      return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
+   }
+   nameToHsl(str) {
+      let hex = this.#colors[str.toLowerCase().replace(/\s+/g, '')];
+      if (!hex) return undefined;
+      let hsl = this.hexToHsl(hex);
+      let { h, s, l, a } = this.getHslObj(hsl);
+      return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
+   }
+   toHex(str) {
+      switch (true) {
+         case !!this.#colors[str.toLowerCase().replace(/\s+/g, '')]:
+            return this.nameToHex(str);
+            break;
+         case !!this.hexNormalize(str):
+            return this.hexNormalize(str);
+            break;
+         case !!this.rgbNormalize(str):
+            return this.rgbToHex(str);
+            break;
+         case !!this.hslNormalize(str):
+            return this.hslToHex(str);
+            break;
+         default:
+            return undefined;
+      }
+   }
+   toRgb(str) {
+      switch (true) {
+         case !!this.#colors[str.toLowerCase().replace(/\s+/g, '')]:
+            return this.nameToRgb(str);
+            break;
+         case !!this.hexNormalize(str):
+            return this.hexToRgb(str);
+            break;
+         case !!this.rgbNormalize(str):
+            return this.rgbNormalize(str);
+            break;
+         case !!this.hslNormalize(str):
+            return this.hslToRgb(str);
+            break;
+         default:
+            return undefined;
+      }
+   }
+   toHsl(str) {
+      switch (true) {
+         case !!this.#colors[str.toLowerCase().replace(/\s+/g, '')]:
+            return this.nameToHsl(str);
+            break;
+         case !!this.hexNormalize(str):
+            return this.hexToHsl(str);
+            break;
+         case !!this.rgbNormalize(str):
+            return this.rgbToHsl(str);
+            break;
+         case !!this.hslNormalize(str):
+            return this.hslNormalize(str);
+            break;
+         default:
+            return undefined;
+      }
+   }
+   toHexObj(str) {
+      let hex = this.toHex(str);
+      if (!hex) return undefined;
+      return this.getHexObj(hex)
+   }
+   toRgbObj(str) {
+      let rgb = this.toRgb(str);
+      if (!rgb) return undefined;
+      return this.getRgbObj(rgb)
+   }
+   toRgbObj(str) {
+      let hsl = this.toHsl(str);
+      if (!hsl) return undefined;
+      return this.getHslObj(hsl)
    }
 }
-
-let c = new ColorTransform();
-console.log(c.hslNormalize('hsl(255.4, 34.8, 70.9, 0.903)'))
