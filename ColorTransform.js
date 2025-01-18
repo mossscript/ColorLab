@@ -1,4 +1,4 @@
-/*** ColorTransform v1.02 ***/
+/*** ColorTransform v1.03 ***/
 class ColorTransform {
    #colors;
    constructor() {
@@ -2387,7 +2387,7 @@ class ColorTransform {
       let r = parseInt(match[1]);
       let g = parseInt(match[2]);
       let b = parseInt(match[3]);
-      let a = parseFloat(match[4]);
+      let a = parseFloat(Number(match[4]).toFixed(2));
       return { r, g, b, a };
    }
    getHslObj(str) {
@@ -2397,7 +2397,7 @@ class ColorTransform {
       let h = parseInt(match[1]);
       let s = parseInt(match[2]);
       let l = parseInt(match[3]);
-      let a = parseFloat(match[4]);
+      let a = parseFloat(Number(match[4]).toFixed(2));
       return { h, s, l, a };
    }
    hexToHsl(hex) {
@@ -2405,7 +2405,7 @@ class ColorTransform {
       r = parseInt(r, 16);
       g = parseInt(g, 16);
       b = parseInt(b, 16);
-      a = parseInt(a, 16) / 255;
+      a = parseFloat((parseInt(a, 16) / 255).toFixed(2));
       if (r == undefined) return undefined;
       r /= 255;
       g /= 255;
@@ -2441,19 +2441,19 @@ class ColorTransform {
       r = parseInt(r, 16);
       g = parseInt(g, 16);
       b = parseInt(b, 16);
-      a = parseInt(a, 16) / 255;
-      console.log(r)
+      a = parseFloat((parseInt(a, 16) / 255).toFixed(2));
       if (r == undefined) return undefined;
       return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
    }
    rgbToHex(rgb) {
       let { r, g, b, a } = this.getRgbObj(rgb);
       if (r == undefined) return undefined;
+      a = Math.round(a * 255);
       let toHex = (value) => {
          let hex = value.toString(16);
          return hex.length == 1 ? '0' + hex : hex;
       };
-      return a < 1 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+      return a < 255 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
    }
    rgbToHsl(rgb) {
       let { r, g, b, a } = this.getRgbObj(rgb);
@@ -2482,9 +2482,9 @@ class ColorTransform {
          }
          h /= 6;
       }
-      h = (h * 360).toFixed(1);
-      s = (s * 100).toFixed(1);
-      l = (l * 100).toFixed(1);
+      h = (h * 360).toFixed(0);
+      s = (s * 100).toFixed(0);
+      l = (l * 100).toFixed(0);
       return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
    }
    hslToRgb(hsl) {
@@ -2579,11 +2579,12 @@ class ColorTransform {
       r = Math.round((r + m) * 255);
       g = Math.round((g + m) * 255);
       b = Math.round((b + m) * 255);
+      a = Math.round(a * 255);
       let toHex = (value) => {
          let hex = value.toString(16);
          return hex.length == 1 ? '0' + hex : hex;
       };
-      return a < 1 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+      return a < 255 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
    }
    nameToHex(str) {
       return this.#colors[str.toLowerCase().replace(/\s+/g, '')];
@@ -2595,12 +2596,11 @@ class ColorTransform {
       r = parseInt(r, 16);
       g = parseInt(g, 16);
       b = parseInt(b, 16);
-      a = parseInt(a, 16) / 255;
+      a = parseFloat((parseInt(a, 16) / 255).toFixed(2));
       return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
    }
    nameToHsl(str) {
       let hex = this.#colors[str.toLowerCase().replace(/\s+/g, '')];
-      console.log(hex)
       if (!hex) return undefined;
       let hsl = this.hexToHsl(hex);
       let { h, s, l, a } = this.getHslObj(hsl);
