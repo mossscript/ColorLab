@@ -2431,9 +2431,9 @@ class ColorTransform {
          }
          h /= 6;
       }
-      h = (h * 360).toFixed(0);
-      s = (s * 100).toFixed(0);
-      l = (l * 100).toFixed(0);
+      h = parseInt((h * 360).toFixed(0));
+      s = parseInt((s * 100).toFixed(0));
+      l = parseInt((l * 100).toFixed(0));
       return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
    }
    hexToRgb(hex) {
@@ -2482,9 +2482,9 @@ class ColorTransform {
          }
          h /= 6;
       }
-      h = (h * 360).toFixed(0);
-      s = (s * 100).toFixed(0);
-      l = (l * 100).toFixed(0);
+      h = parseInt((h * 360).toFixed(0));
+      s = parseInt((s * 100).toFixed(0));
+      l = parseInt((l * 100).toFixed(0));
       return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
    }
    hslToRgb(hsl) {
