@@ -1,8 +1,8 @@
-/*** ColorTransform v1.1 ***/
+/*** ColorTransform v1.2 ***/
 class ColorTransform {
    #colors;
    constructor() {
-      this.version = "1.1";
+      this.version = "1.2";
       this.#colors = {
          "abbey": "#4c4f56",
          "absolutezero": "#0048ba",
@@ -2677,5 +2677,192 @@ class ColorTransform {
       let hsl = this.toHsl(str);
       if (!hsl) return undefined;
       return this.getHslObj(hsl)
+   }
+
+   hexObjToHsl(r,g,b,a=1) {
+      r = parseInt(r, 16);
+      g = parseInt(g, 16);
+      b = parseInt(b, 16);
+      a = parseFloat((parseInt(a, 16) / 255).toFixed(2));
+      if (r || g || b === undefined) return undefined;
+      if (r>255 || g>255 || b>255 || r<0 || g<0 || b<0 || a>1 ) return undefined;
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      let max = Math.max(r, g, b);
+      let min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max == min) {
+         h = s = 0;
+      } else {
+         let d = max - min;
+         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+         switch (max) {
+            case r:
+               h = (g - b) / d + (g < b ? 6 : 0);
+               break;
+            case g:
+               h = (b - r) / d + 2;
+               break;
+            case b:
+               h = (r - g) / d + 4;
+               break;
+         }
+         h /= 6;
+      }
+      h = parseInt((h * 360).toFixed(0));
+      s = parseInt((s * 100).toFixed(0));
+      l = parseInt((l * 100).toFixed(0));
+      return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
+   }
+   hexObjToRgb(r,g,b,a=1) {
+      r = parseInt(r, 16);
+      g = parseInt(g, 16);
+      b = parseInt(b, 16);
+      a = parseFloat((parseInt(a, 16) / 255).toFixed(2));
+      if (r || g || b === undefined) return undefined;
+      if (r>255 || g>255 || b>255 || r<0 || g<0 || b<0 || a>1 ) return undefined;
+      return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
+   }
+   rgbObjToHex(r,g,b,a=1) {
+      if (r>255 || g>255 || b>255 || r<0 || g<0 || b<0 || a>1 ) return undefined;
+      if (r || g || b === undefined) return undefined;
+      a = Math.round(a * 255);
+      let toHex = (value) => {
+         let hex = value.toString(16);
+         return hex.length == 1 ? '0' + hex : hex;
+      };
+      return a < 255 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+   }
+   rgbObjToHsl(r,g,b,a=1) {
+      if (r>255 || g>255 || b>255 || r<0 || g<0 || b<0 || a>1 ) return undefined;
+      if (r || g || b === undefined) return undefined;
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      let max = Math.max(r, g, b);
+      let min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max == min) {
+         h = s = 0;
+      } else {
+         let d = max - min;
+         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+         switch (max) {
+            case r:
+               h = (g - b) / d + (g < b ? 6 : 0);
+               break;
+            case g:
+               h = (b - r) / d + 2;
+               break;
+            case b:
+               h = (r - g) / d + 4;
+               break;
+         }
+         h /= 6;
+      }
+      h = parseInt((h * 360).toFixed(0));
+      s = parseInt((s * 100).toFixed(0));
+      l = parseInt((l * 100).toFixed(0));
+      return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
+   }
+   hslObjToRgb(h,s,l,a=1) {
+      if (h || s || l === undefined) return undefined;
+      if (h>360 || s>100 || l>100 || h<0 || s<0 || l<0 || a>1 ) return undefined;
+      h = h / 360;
+      s = s / 100;
+      l = l / 100;
+      let c = (1 - Math.abs(2 * l - 1)) * s;
+      let x = c * (1 - Math.abs((h * 6) % 2 - 1));
+      let m = l - c / 2;
+      let r, g, b;
+      switch (true) {
+         case (h >= 0 && h < 1 / 6):
+            r = c;
+            g = x;
+            b = 0;
+            break;
+         case (h >= 1 / 6 && h < 2 / 6):
+            r = x;
+            g = c;
+            b = 0;
+            break;
+         case (h >= 2 / 6 && h < 3 / 6):
+            r = 0;
+            g = c;
+            b = x;
+            break;
+         case (h >= 3 / 6 && h < 4 / 6):
+            r = 0;
+            g = x;
+            b = c;
+            break;
+         case (h >= 4 / 6 && h < 5 / 6):
+            r = x;
+            g = 0;
+            b = c;
+            break;
+         default:
+            r = c;
+            g = 0;
+            b = x;
+            break;
+      }
+      r = Math.round((r + m) * 255);
+      g = Math.round((g + m) * 255);
+      b = Math.round((b + m) * 255);
+      return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
+   }
+   hslObjToHex(h,s,l,a=1) {
+      if (h || s || l === undefined) return undefined;
+      if (h>360 || s>100 || l>100 || h<0 || s<0 || l<0 || a>1 ) return undefined;
+      h = h / 360;
+      s = s / 100;
+      l = l / 100;
+      let c = (1 - Math.abs(2 * l - 1)) * s;
+      let x = c * (1 - Math.abs((h * 6) % 2 - 1));
+      let m = l - c / 2;
+      let r, g, b;
+      switch (true) {
+         case (h >= 0 && h < 1 / 6):
+            r = c;
+            g = x;
+            b = 0;
+            break;
+         case (h >= 1 / 6 && h < 2 / 6):
+            r = x;
+            g = c;
+            b = 0;
+            break;
+         case (h >= 2 / 6 && h < 3 / 6):
+            r = 0;
+            g = c;
+            b = x;
+            break;
+         case (h >= 3 / 6 && h < 4 / 6):
+            r = 0;
+            g = x;
+            b = c;
+            break;
+         case (h >= 4 / 6 && h < 5 / 6):
+            r = x;
+            g = 0;
+            b = c;
+            break;
+         default:
+            r = c;
+            g = 0;
+            b = x;
+            break;
+      }
+      r = Math.round((r + m) * 255);
+      g = Math.round((g + m) * 255);
+      b = Math.round((b + m) * 255);
+      a = Math.round(a * 255);
+      let toHex = (value) => {
+         let hex = value.toString(16);
+         return hex.length == 1 ? '0' + hex : hex;
+      };
+      return a < 255 ? `#${toHex(r)}${toHex(g)}${toHex(b)}${toHex(a)}` : `#${toHex(r)}${toHex(g)}${toHex(b)}`;
    }
 }
