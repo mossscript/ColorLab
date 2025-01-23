@@ -2698,4 +2698,22 @@ class ColorTransform {
       if (!hsl) return undefined;
       return this.getHslObj(hsl)
    }
+   test(str) {
+      switch (true) {
+         case !!this.#colors[str.toLowerCase().replace(/\s+/g, '')]:
+            return true;
+            break;
+         case !!this.hexNormalize(str):
+            return true;
+            break;
+         case !!this.rgbNormalize(str):
+            return true;
+            break;
+         case !!this.hslNormalize(str):
+            return true;
+            break;
+         default:
+            return false;
+      }
+   }
 }
