@@ -131,13 +131,10 @@
          let input = form.querySelector('input');
          let span = form.querySelector('span');
          let output = form.querySelectorAll('output');
-         span.style.background = C.toHex(input.value);
-         output[0].innerHTML = C.toHex(input.value);
-         output[1].innerHTML = C.toRgb(input.value);
-         output[2].innerHTML = C.toHsl(input.value);
-         output[3].innerHTML = JSON.stringify(C.toHexObj(input.value));
-         output[4].innerHTML = JSON.stringify(C.toRgbObj(input.value));
-         output[5].innerHTML = JSON.stringify(C.toHslObj(input.value));
+         span.style.background = C.toHex(input.value) || '';
+         output[0].innerHTML = C.toHex(input.value) || '';
+         output[1].innerHTML = C.toRgb(input.value) || '';
+         output[2].innerHTML = C.toHsl(input.value) || '';
       }
    </script>
 </body>
