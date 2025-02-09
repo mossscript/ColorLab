@@ -1,4 +1,4 @@
-/*** ColorTransform v1.2 ***/
+/*** ColorTransform v1.3 ***/
 class ColorTransform {
    #colors;
    constructor() {
@@ -2486,7 +2486,7 @@ class ColorTransform {
       return a < 1 ? `hsla(${h} ${s}% ${l}% / ${a})` : `hsl(${h} ${s}% ${l}%)`;
    }
    hslObjToRgb(h, s, l, a = 1) {
-      if (h == undefined || s == undefined || l == undefined || h > 255 || s > 255 || l > 255 || h < 0 || s < 0 || l < 0 || a > 1) return undefined;
+      if (h == undefined || s == undefined || l == undefined || h > 360 || s > 255 || l > 255 || h < 0 || s < 0 || l < 0 || a > 1) return undefined;
       h = h / 360;
       s = s / 100;
       l = l / 100;
@@ -2532,7 +2532,7 @@ class ColorTransform {
       return a < 1 ? `rgba(${r} ${g} ${b} / ${a})` : `rgb(${r} ${g} ${b})`;
    }
    hslObjToHex(h, s, l, a = 1) {
-      if (h == undefined || s == undefined || l == undefined || h > 255 || s > 255 || l > 255 || h < 0 || s < 0 || l < 0 || a > 1) return undefined;
+      if (h == undefined || s == undefined || l == undefined || h > 360 || s > 255 || l > 255 || h < 0 || s < 0 || l < 0 || a > 1) return undefined;
       h = h / 360;
       s = s / 100;
       l = l / 100;
