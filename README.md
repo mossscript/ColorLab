@@ -1,4 +1,4 @@
-# Color Conversion Class `v1.2`
+# Color Conversion Class `v1.3`
 
 This repository contains a set of functions for color format conversion. The functions support various color formats like HEX, RGB, HSL, and more. Below is a list of the available functions:
 
