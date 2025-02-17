@@ -75,4 +75,4 @@ You can use these functions to easily convert between different color formats an
 let C = new ColorTransform();
 let hex = C.toHex("Persian Green"); // "#00a693"
 let rgb = C.toRgb("#ff6347"); // "rgb(255 99 71)"
-let hsl = C.rgbToHsl("rgb(255, 99, 71)"); // "hsl(9.1 100.0% 63.9%)"
+let hsl = C.rgbToHsl("rgb(255, 99, 71)"); // "hsl(9 100% 64%)"
