@@ -2698,6 +2698,9 @@ class ColorTransform {
       if (!hsl) return undefined;
       return this.getHslObj(hsl)
    }
+   name(str){
+      return nameToHex(str);
+   }
    test(str) {
       switch (true) {
          case !!this.#colors[str.toLowerCase().replace(/\s+/g, '')]:
@@ -2716,4 +2719,8 @@ class ColorTransform {
             return false;
       }
    }
+}
+
+if (window === 'undefined') {
+   module.exports = ColorTransform
 }
