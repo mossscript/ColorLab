@@ -1,12 +1,17 @@
 // ColorTransform.js v3.0.0
 class ColorTransform {
+   //-------------------
+   // private variables 
+   //-------------------
+   #COLORS_MAP;
+   
    //------------
    // constructor
    //------------
    constructor() {
       this.version = '3.0.0';
       this.#COLORS_MAP = new Map(
-         Object.entries(this.#COLORS).map(([k, v]) => [k.toLowerCase(), v])
+         Object.entries(this.#COLORS).map(([k, v]) => [this.#F.trimCase(k), v])
       );
    }
    
@@ -14,7 +19,6 @@ class ColorTransform {
    // Colors
    //--------
    #COLORS = <WebColors/>;
-   #COLORS_MAP;
    
    //------------
    // Validation 
@@ -27,17 +31,12 @@ class ColorTransform {
       number: (input) => {
          return typeof input === 'number';
       },
-      // Array
-      everyNumber: (input) => {
-         return input.every(i => this.#V.number(i));
+      object: (input) => {
+         return typeof input === 'object' && !Array.isArray(input) && input !== null;
       },
-      everyString: (input) => {
-         return input.every(i => this.#V.string(i));
+      array: (input) => {
+         return typeof input === 'object' && Array.isArray(input) && input !== null;
       },
-      everyNumberOrString: (input) => {
-         return input.every(i => this.#V.number(i) || this.#V.string(i));
-      },
-      
    }
    
    //-----------
@@ -60,6 +59,20 @@ class ColorTransform {
       splitPascalCase: (input) => {
          return input.split(/(?=[A-Z])/).join(" ");
       },
+      detect: (input) => {
+         input = String(input).trim().toLowerCase();
+         const colors = Array.from(this.#COLORS_MAP.keys());
+         
+         if (colors.includes(this.#F.trimCase(input))) return "KEYWORD";
+         if (this.#R.HEX.test(input)) return "HEX";
+         if (this.#R.RGB.test(input)) return "RGB";
+         if (this.#R.HSL.test(input)) return "HSL";
+         
+         return undefined;
+      },
+      trimCase: (input) => {
+         return input.replace(/\s+/g, '').toLowerCase()
+      },
    }
    
    //--------
@@ -80,6 +93,15 @@ class ColorTransform {
    // Normalize 
    //-----------
    #N = {
+      KEYWORD: (input) => {
+         const T = this.#F.trimCase;
+         input = T(input);
+         if (this.#COLORS_MAP.has(input)) {
+            const originalKey = Object.keys(this.#COLORS).find(name => T(name) === input);
+            return this.#F.splitPascalCase(originalKey);
+         }
+         return undefined;
+      },
       HEX: (input) => {
          const regex = this.#R.HEX;
          if (!regex.test(input)) return undefined;
@@ -161,8 +183,11 @@ class ColorTransform {
    //------------
    #T = {
       KEYWORD: {
+         KEYWORD: (key) => {
+            return this.#N.KEYWORD(key);
+         },
          HEX: (key) => {
-            return this.#COLORS_MAP.get(key.replace(/\s+/g, '').toLowerCase());
+            return this.#COLORS_MAP.get(this.#F.trimCase(key));
          },
          RGB: (key) => {
             let hex = this.#T.KEYWORD.HEX(key);
@@ -178,15 +203,17 @@ class ColorTransform {
             let rgb = this.#T.HEX.RGB(hex);
             return this.#T.RGB.KEYWORD(rgb);
          },
+         HEX: (hex) => {
+            let channels = this.#C.HEX(hex);
+            if (!channels) return undefined;
+            let { R, G, B, A } = channels;
+            return A === 'FF' ? '#' + R + G + B : '#' + R + G + B + A;
+         },
          RGB: (hex) => {
             const { parseInt16: P, toFixed: F } = this.#F;
-            
             let channels = this.#C.HEX(hex);
-            
             if (!channels) return undefined;
-            
             let { R, G, B, A } = channels;
-            
             R = P(R);
             G = P(G);
             B = P(B);
@@ -201,14 +228,10 @@ class ColorTransform {
       RGB: {
          KEYWORD: (rgb) => {
             let channels = this.#C.RGB(rgb);
-            
             if (!channels) return undefined;
-            
             let { R, G, B } = channels;
-            
             let closest = null;
             let min = Infinity;
-            
             for (const [name, hex] of Object.entries(this.#COLORS)) {
                const { R: r, G: g, B: b } = this.#C.RGB(this.#T.HEX.RGB(hex));
                const dist = (R - r) ** 2 + (G - g) ** 2 + (B - b) ** 2;
@@ -217,43 +240,37 @@ class ColorTransform {
                   closest = name;
                }
             }
-            
-            return closest
+            return closest;
+         },
+         RGB: (rgb) => {
+            let channels = this.#C.RGB(hex);
+            if (!channels) return undefined;
+            let { R, G, B, A } = channels;
+            return A === 1 ? `rgb(${R} ${G} ${B})` : `rgb(${R} ${G} ${B} / ${A})`;
          },
          HEX: (rgb) => {
             const H = this.#F.toHex;
-            
             let channels = this.#C.RGB(rgb);
-            
             if (!channels) return undefined;
-            
             let { R, G, B, A } = channels;
-            
             R = H(R);
             G = H(G);
             B = H(B);
             A = H(A * 255);
-            
             return A === 'FF' ? '#' + R + G + B : '#' + R + G + B + A;
          },
          HSL: (rgb) => {
             const F = this.#F.round;
-            
             let channels = this.#C.RGB(rgb);
-            
             if (!channels) return undefined;
-            
             let { R, G, B, A } = channels;
-            
             R /= 255;
             G /= 255;
             B /= 255;
-            
             let max = Math.max(R, G, B);
             let min = Math.min(R, G, B);
             let H, S, L;
             const delta = max - min;
-            
             if (max === min) {
                H = 0;
             } else if (R === max) {
@@ -263,7 +280,6 @@ class ColorTransform {
             } else if (B === max) {
                H = 4 + (R - G) / delta;
             }
-            
             L = (min + max) / 2;
             if (max === min) {
                S = 0;
@@ -272,12 +288,10 @@ class ColorTransform {
             } else {
                S = delta / (2 - max - min);
             }
-            
             H = F(Math.min(H * 60, 360));
             H = (H < 0) ? H += 360 : H;
             S = F(S * 100);
             L = F(L * 100);
-            
             return A === 1 ? `hsl(${H} ${S}% ${L}%)` : `hsl(${H} ${S}% ${L}% / ${A})`;
          },
       },
@@ -285,6 +299,12 @@ class ColorTransform {
          KEYWORD: (hsl) => {
             let rgb = this.#T.HSL.RGB(hsl);
             return this.#T.RGB.KEYWORD(rgb);
+         },
+         HSL: (hsl) => {
+            let channels = this.#C.HSL(hsl);
+            if (!channels) return undefined;
+            let { H, S, L, A } = channels;
+            return A === 1 ? `hsl(${H} ${S}% ${L}%)` : `hsl(${H} ${S}% ${L}% / ${A})`;
          },
          RGB: (hsl) => {
             const F = this.#F.round;
@@ -307,8 +327,8 @@ class ColorTransform {
             
             switch (true) {
                case (H >= 0 && H < 1 / 6):
-                  R = c;
-                  G = x;
+                  R = C;
+                  G = X;
                   B = 0;
                   break;
                case (H >= 1 / 6 && H < 2 / 6):
@@ -347,22 +367,29 @@ class ColorTransform {
             let rgb = this.#T.HSL.RGB(hsl);
             return this.#T.RGB.HEX(rgb);
          },
+      },
+      TO: {
+         KEYWORD: (color) => {
+            return this.#T[this.#F.detect(color)].KEYWORD(color);
+         },
+         HEX: (color) => {
+            return this.#T[this.#F.detect(color)].HEX(color);
+         },
+         RGB: (color) => {
+            return this.#T[this.#F.detect(color)].RGB(color);
+         },
+         HSL: (color) => {
+            return this.#T[this.#F.detect(color)].HSL(color);
+         },
+         ALLFORMATS: (color) => {
+            return {
+               KEYWORD: this.#T.TO.KEYWORD(color),
+               HEX: this.#T.TO.HEX(color),
+               RGB: this.#T.TO.RGB(color),
+               HSL: this.#T.TO.HSL(color),
+            }
+         },
       }
-   }
-   
-   //-----------------
-   // private Methods
-   //-----------------
-   #detect(input) {
-      input = String(input).trim().toLowerCase();
-      let colors = Object.keys(this.#COLORS).map(x => x.toLowerCase());
-      
-      if (colors.includes(input)) return "KEYWORD";
-      if (this.#R.HEX.test(input)) return "HEX";
-      if (this.#R.RGB.test(input)) return "RGB";
-      if (this.#R.HSL.test(input)) return "HSL";
-      
-      return undefined;
    }
    
    //---------
@@ -381,4 +408,4 @@ class ColorTransform {
 
 let { transform: T } = new ColorTransform();
 
-console.log(T.KEYWORD.RGB('darkcyan'));
+console.log(T.TO.ALLFORMATS('hsl(40 100 50)'));
