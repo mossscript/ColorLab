@@ -1,4 +1,4 @@
-// ColorTransform.js v3.0.0
+// ColorTransform.js v2.0.0
 class ColorTransform {
    //-------------------
    // private variables 
@@ -9,7 +9,7 @@ class ColorTransform {
    // constructor
    //------------
    constructor() {
-      this.version = '3.0.0';
+      this.version = '2.0.0';
       this.#COLORS_MAP = new Map(
          Object.entries(this.#COLORS).map(([k, v]) => [this.#trimCase(k), v])
       );
