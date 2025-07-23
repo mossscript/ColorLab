@@ -572,5 +572,4 @@ class ColorTransform {
    get channels() {
       return this.#channelsTransforms();
    }
-   
 }
