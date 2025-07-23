@@ -465,41 +465,6 @@ class ColorTransform {
          }
       }
    }
-   #CT = {
-      hex: {
-         keyword: (...args) => {
-            return this.#T.hex.keyword(this.#channelsToString('hex', ...args));
-         },
-         rgb: (...args) => {
-            return this.#T.hex.rgb(this.#channelsToString('hex', ...args));
-         },
-         hsl: (...args) => {
-            return this.#T.hex.hsl(this.#channelsToString('hex', ...args));
-         },
-      },
-      rgb: {
-         keyword: (...args) => {
-            return this.#T.rgb.keyword(this.#channelsToString('rgb', ...args));
-         },
-         hex: (...args) => {
-            return this.#T.rgb.hex(this.#channelsToString('rgb', ...args));
-         },
-         hsl: (...args) => {
-            return this.#T.rgb.hsl(this.#channelsToString('rgb', ...args));
-         },
-      },
-      hsl: {
-         keyword: (...args) => {
-            return this.#T.hsl.keyword(this.#channelsToString('hsl', ...args));
-         },
-         hex: (...args) => {
-            return this.#T.hsl.hex(this.#channelsToString('hsl', ...args));
-         },
-         rgb: (...args) => {
-            return this.#T.hsl.rgb(this.#channelsToString('hsl', ...args));
-         },
-      },
-   }
    
    //-----------------
    // private Methods 
@@ -552,6 +517,21 @@ class ColorTransform {
          }
       }
    }
+   #channelsTransforms() {
+      const types = ['hex', 'rgb', 'hsl'];
+      const result = {};
+      for (const from of types) {
+         result[from] = {};
+         for (const to of types.concat('keyword')) {
+            if (from === to) continue;
+            result[from][to] = (...args) => {
+               const input = this.#channelsToString(from, ...args);
+               return (!input) ? undefined : this.#T[from][to](input);
+            };
+         }
+      }
+      return result;
+   }
    
    //---------
    // Methods 
@@ -590,7 +570,7 @@ class ColorTransform {
       return this.#T;
    }
    get channels() {
-      return this.#CT;
+      return this.#channelsTransforms();
    }
    
 }
