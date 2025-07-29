@@ -1,1 +1,1 @@
-# Color Conversion Class `v2.2.0`
+# Color Lab `v2.2.0`
