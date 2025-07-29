@@ -1,1 +1,1 @@
-# Color Conversion Class `v2`
+# Color Conversion Class `v2.2.0`
