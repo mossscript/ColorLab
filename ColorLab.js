@@ -1,4 +1,4 @@
-// ColorLab.js v2.2.0
+// ColorLab.js v2.2.2
 class ColorLab {
    //-------------------
    // private variables 
@@ -9,7 +9,7 @@ class ColorLab {
    // constructor
    //------------
    constructor() {
-      this.version = '2.2.0';
+      this.version = '2.2.2';
       this.#COLORS_MAP = new Map(
          Object.entries(this.#COLORS).map(([k, v]) => [this.#trimCase(k), v])
       );
@@ -802,20 +802,46 @@ class ColorLab {
    toHex(str) {
       return this.#T.to.hex(str);
    }
+   toHexChannels(str) {
+      return this.getChannels(this.#T.to.hex(str));
+   }
    toRgb(str) {
       return this.#T.to.rgb(str);
+   }
+   toRgbChannels(str) {
+      return this.getChannels(this.#T.to.rgb(str));
    }
    toHsl(str) {
       return this.#T.to.hsl(str);
    }
+   toHslChannels(str) {
+      return this.getChannels(this.#T.to.hsl(str));
+   }
    toHsv(str) {
-      return this.#T.to.hsv(str);
+      return this.getChannels(this.#T.to.hsv(str));
+   }
+   toHsvChannels(str) {
+      return this.getChannels(this.#T.to.hsv(str));
    }
    toCmyk(str) {
-      return this.#T.to.cmyk(str);
+      return this.getChannels(this.#T.to.cmyk(str));
+   }
+   toCmykChannels(str) {
+      return this.getChannels(this.#T.to.cmyk(str));
    }
    toAllFormat(str) {
       let f = (type) => this.#T.to[type](str);
+      return {
+         keyword: f('keyword'),
+         hex: f('hex'),
+         rgb: f('rgb'),
+         hsl: f('hsl'),
+         hsv: f('hsv'),
+         cmyk: f('cmyk'),
+      }
+   }
+   toAllFormatChannels(str) {
+      let f = (type) => this.getChannels(this.#T.to[type](str));
       return {
          keyword: f('keyword'),
          hex: f('hex'),
