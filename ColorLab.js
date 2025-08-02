@@ -1,4 +1,4 @@
-// ColorLab.js v2.2.3
+// ColorLab.js v2.2.2
 class ColorLab {
    //-------------------
    // private variables 
@@ -9,7 +9,7 @@ class ColorLab {
    // constructor
    //------------
    constructor() {
-      this.version = '2.2.3';
+      this.version = '2.2.2';
       this.#COLORS_MAP = new Map(
          Object.entries(this.#COLORS).map(([k, v]) => [this.#trimCase(k), v])
       );
@@ -173,7 +173,6 @@ class ColorLab {
    // Harmonies
    //-----------
    #H = {
-      'monochromatic': [0],
       'analogous': [0, 30, -30],
       'complementary': [0, 180],
       'tetradic': [0, 60, 180, 240],
