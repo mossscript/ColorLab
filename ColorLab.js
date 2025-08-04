@@ -1,4 +1,4 @@
-// ColorLab.js v2.2.2
+// ColorLab.js v2.2.3
 class ColorLab {
    //-------------------
    // private variables 
@@ -9,7 +9,7 @@ class ColorLab {
    // constructor
    //------------
    constructor() {
-      this.version = '2.2.2';
+      this.version = '2.2.3';
       this.#COLORS_MAP = new Map(
          Object.entries(this.#COLORS).map(([k, v]) => [this.#trimCase(k), v])
       );
@@ -181,7 +181,6 @@ class ColorLab {
       'triadic': [0, 120, -120],
       'square': [0, 90, -90, 180],
    }
-   
    
    //--------
    // RegExp
@@ -862,7 +861,8 @@ class ColorLab {
       return (!detect || detect === 'keyword') ? undefined : this.#C[detect](str);
    }
    isColor(str) {
-      return !!this.detect(str);
+      let detect = this.detect(str);
+      return !detect ? false : this.#N[detect](str);
    }
    detect(input) {
       input = String(input).trim().toLowerCase();
@@ -932,7 +932,7 @@ class ColorLab {
    
    /*** Safe Web Color ***/
    getNearestColor(str) {
-      return this.convert.to.keyword(str);
+      return this.#T.to.keyword(str);
    }
    
    /*** Contrast ***/
