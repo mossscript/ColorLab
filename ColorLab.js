@@ -862,7 +862,7 @@ class ColorLab {
    }
    isColor(str) {
       let detect = this.detect(str);
-      return !detect ? false : this.#N[detect](str);
+      return !detect ? false : !!this.#N[detect](str);
    }
    detect(input) {
       input = String(input).trim().toLowerCase();
